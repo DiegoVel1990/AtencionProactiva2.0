@@ -43,6 +43,11 @@ h1, h2, h3 { color: var(--ap-green); letter-spacing: 0; }
   padding-top: 12px;
   text-align: center;
 }
+.filter-summary {
+  color: #52615a;
+  font-size: 14px;
+  margin: 0 0 14px;
+}
 </style>
 """
 
@@ -127,6 +132,68 @@ def apply_filters(df: pd.DataFrame) -> pd.DataFrame:
         filtered = filtered[filtered["CLUES FINAL"].astype(str).isin(selected_clues)]
 
     return filtered
+
+
+def month_column(df: pd.DataFrame) -> str | None:
+    for column in ("Mes", "mes", "MES", "Month", "month", "mes_nombre", "nombre_mes"):
+        if column in df.columns:
+            return column
+    return None
+
+
+def apply_filters_with_summary(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, tuple[list, list]]]:
+    st.sidebar.header("Filtros")
+    filtered = df.copy()
+    selections = {}
+
+    if "anio_epidemiologico" in filtered.columns:
+        years = sorted(filtered["anio_epidemiologico"].dropna().unique())
+        selected_years = checkbox_filter("Año epidemiológico", years, "anio_epidemiologico")
+        filtered = filtered[filtered["anio_epidemiologico"].isin(selected_years)]
+        selections["Año"] = (selected_years, years)
+
+    mes_col = month_column(filtered)
+    if mes_col:
+        months = sorted(filtered[mes_col].dropna().unique(), key=filter_label)
+        selected_months = checkbox_filter("Mes", months, "mes")
+        filtered = filtered[filtered[mes_col].isin(selected_months)]
+        selections["Mes"] = (selected_months, months)
+
+    if "Estado" in filtered.columns:
+        states = sorted(filtered["Estado"].dropna().astype(str).unique())
+        selected_states = checkbox_filter("Estado", states, "estado")
+        filtered = filtered[filtered["Estado"].astype(str).isin(selected_states)]
+        selections["Estado"] = (selected_states, states)
+
+    if "CLUES FINAL" in filtered.columns:
+        clues = sorted(filtered["CLUES FINAL"].dropna().astype(str).unique())
+        selected_clues = checkbox_filter("CLUES", clues, "clues")
+        filtered = filtered[filtered["CLUES FINAL"].astype(str).isin(selected_clues)]
+        selections["CLUES"] = (selected_clues, clues)
+
+    return filtered, selections
+
+
+def selection_text(selected: list, options: list) -> str:
+    if len(selected) == len(options):
+        return "Todas"
+    if not selected:
+        return "Ninguna"
+    labels = [filter_label(value) for value in selected]
+    if len(labels) <= 5:
+        return ", ".join(labels)
+    return f'{", ".join(labels[:5])} y {len(labels) - 5} más'
+
+
+def filter_summary_text(selections: dict[str, tuple[list, list]]) -> str:
+    parts = []
+    for label, (selected, options) in selections.items():
+        parts.append(f"{label}: {selection_text(selected, options)}")
+    return "Filtros seleccionados - " + " | ".join(parts)
+
+
+def show_filter_summary(selections: dict[str, tuple[list, list]]) -> None:
+    st.markdown(f'<div class="filter-summary">{filter_summary_text(selections)}</div>', unsafe_allow_html=True)
 
 
 INDICATOR_DENOMINATOR_COLUMNS = [
@@ -642,7 +709,7 @@ def prevention_promotion_summary(df: pd.DataFrame) -> dict:
     zarit_positive = sum_columns(df, ["Test sobre la carga de la persona cuidadora (Zarit y Zarit) positivos"])
 
     return {
-        "houses": sum_columns(df, ["Intervenciones en la vivienda SI"]),
+        "houses": sum_columns(df, ["Intervenciones en la vivienda SI", "Intervenciones en la vivienda NO"]),
         "family_members": sum_columns(df, ["Núm. integrantes que recibieron acciones preventivas"]),
         "detections": detections,
         "detection_positivity": positives / detections if detections else 0,
@@ -820,7 +887,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         y="Indicador",
         color="Componente",
         orientation="h",
-        title="Indicadores de avance",
+        title="Indicadores de avance, a nivel nacional",
         color_discrete_map={"Avance": "#235b4e", "Restante": "#d7ded8"},
         custom_data=["Resultado", "Meta texto", "Comparacion"],
     )
@@ -889,7 +956,6 @@ def render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> None:
             talk_label_column,
             "Total",
             "Pláticas de promoción a la salud impartidas a familiares",
-            horizontal=True,
         )
     show_table("Distribución de pláticas de promoción a la salud", health_talks_display_table(talks))
 
@@ -904,14 +970,10 @@ def main() -> None:
     try:
         df = load_data(DEFAULT_DATA_PATH)
     except Exception as exc:
-        st.error(f"No pude leer el CSV institucional: {exc}")
+        st.error(f"No pude leer el archivo institucional: {exc}")
         st.stop()
 
-    filtered = apply_filters(df)
-
-    if filtered.empty:
-        st.warning("No hay registros con los filtros seleccionados.")
-        st.stop()
+    filtered, filter_selections = apply_filters_with_summary(df)
 
     tab1, tab2, tab3, tab4 = st.tabs(
         [
@@ -923,12 +985,16 @@ def main() -> None:
     )
 
     with tab1:
-        indicators = indicator_summary(filtered)
+        indicators = indicator_summary(df)
         show_stacked_indicator_chart(indicators)
         indicator_table = indicators[["Indicador", "Tipo", "Numerador", "Denominador", "Meta texto", "Resultado"]]
+        st.subheader("Indicadores de avance, a nivel nacional")
         st.dataframe(indicator_table, hide_index=True, use_container_width=True)
 
     with tab2:
+        show_filter_summary(filter_selections)
+        if filtered.empty:
+            st.warning("No hay registros con los filtros seleccionados.")
         people = people_by_age_group(filtered)
         sex = people_by_sex(filtered)
         pregnancy = pregnancy_puerperium(filtered)
@@ -946,7 +1012,7 @@ def main() -> None:
 
         col1, col2 = st.columns(2)
         with col1:
-            show_table("Mujeres y puerperio", pregnancy)
+            show_table("Embarazadas y puerperio", pregnancy)
         with col2:
             show_table("Ausentismo", absenteeism)
 
@@ -954,17 +1020,19 @@ def main() -> None:
         show_table("Detecciones", detections)
 
     with tab3:
+        show_filter_summary(filter_selections)
+        if filtered.empty:
+            st.warning("No hay registros con los filtros seleccionados.")
         proactive_staff = proactive_staff_summary(filtered)
         patient_interventions = patient_interventions_summary(filtered)
         ethnicity = ethnicity_summary(filtered)
         migrant = migrant_summary(filtered)
 
-        show_bar_chart(
+        show_pie_chart(
             proactive_staff,
             "Perfil",
             "Total",
             "Perfiles del personal de Atención Proactiva",
-            horizontal=True,
         )
         show_bar_chart(
             patient_interventions,
@@ -998,6 +1066,9 @@ def main() -> None:
             "Conclusión de la visita",
         )
     with tab4:
+        show_filter_summary(filter_selections)
+        if filtered.empty:
+            st.warning("No hay registros con los filtros seleccionados.")
         prevention_summary = prevention_promotion_summary(filtered)
         health_talks = health_talks_summary(filtered)
         render_prevention_promotion(prevention_summary, health_talks)
