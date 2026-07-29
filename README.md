@@ -47,13 +47,13 @@ La estructura general ya está creada y las cuatro pestañas principales ya tien
 
 ## Ruta de datos
 
-La ruta precargada en `app.py` es:
+La ruta precargada en `app.py` es relativa al repositorio de GitHub:
 
 ```text
-C:\Users\diego.velazquez.OPDIB\OneDrive - IMSS-BIENESTAR\Documentos\IMSS-B\23 Atención PROACTIVA\Python\base_semanal_unidad_2026.csv
+base_semanal_unidad_2026.parquet
 ```
 
-Si el archivo se actualiza constantemente con el mismo nombre y ruta, no necesitas tocar el código. La app lee directamente el CSV cada vez que Streamlit ejecuta el script, sin caché en la carga de datos.
+Si el archivo se actualiza semanalmente con el mismo nombre dentro del repositorio, no necesitas tocar el código. La app lee directamente el Parquet cada vez que Streamlit ejecuta el script, sin caché en la carga de datos.
 
 Además, el visualizador conserva automáticamente solo registros con `anio_epidemiologico == 2026`.
 

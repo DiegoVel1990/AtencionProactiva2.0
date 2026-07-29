@@ -8,10 +8,7 @@ import plotly.express as px
 import streamlit as st
 
 
-DEFAULT_DATA_PATH = (
-    r"C:\Users\diego.velazquez.OPDIB\OneDrive - IMSS-BIENESTAR\Documentos"
-    r"\IMSS-B\23 Atención PROACTIVA\Python\base_semanal_unidad_2026.csv"
-)
+DEFAULT_DATA_PATH = "base_semanal_unidad_2026.parquet"
 
 
 st.set_page_config(
@@ -50,19 +47,24 @@ h1, h2, h3 { color: var(--ap-green); letter-spacing: 0; }
 """
 
 
-def resolve_csv_path(path_text: str) -> str:
+def resolve_data_path(path_text: str) -> str:
     path = Path(path_text)
     if path.exists():
         return str(path)
     if path.suffix == "":
-        csv_path = path.with_suffix(".csv")
-        if csv_path.exists():
-            return str(csv_path)
+        for suffix in (".parquet", ".csv"):
+            data_path = path.with_suffix(suffix)
+            if data_path.exists():
+                return str(data_path)
     return path_text
 
 
 def load_data(source: str) -> pd.DataFrame:
-    df = pd.read_csv(resolve_csv_path(source), encoding="utf-8-sig")
+    data_path = resolve_data_path(source)
+    if str(data_path).lower().endswith(".parquet"):
+        df = pd.read_parquet(data_path)
+    else:
+        df = pd.read_csv(data_path, encoding="utf-8-sig")
     df.columns = [str(c).strip() for c in df.columns]
     for col in df.columns:
         if col not in {"Estado", "CLUES FINAL"}:
