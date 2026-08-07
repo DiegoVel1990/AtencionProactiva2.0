@@ -10,6 +10,56 @@ import streamlit as st
 
 DEFAULT_DATA_PATH = "base_semanal_unidad_2026.parquet"
 
+INSTITUTIONAL_PALETTE = {
+    "green_1": "#006657",
+    "green_2": "#1E5B4F",
+    "green_3": "#002F2A",
+    "wine_1": "#9B2247",
+    "wine_2": "#611232",
+    "gold_1": "#E6D194",
+    "gold_2": "#A57F2C",
+    "bg": "#F2F0EC",
+    "bg_2": "#E8E5DF",
+    "border": "#D4CFC8",
+    "ink": "#161A1D",
+    "ink_2": "#3D4045",
+}
+
+GENERAL_CHART_COLORS = [
+    "#006657",
+    "#A57F2C",
+    "#9B2247",
+    "#1E5B4F",
+    "#611232",
+    "#7C8782",
+    "#C8B37D",
+    "#4C6F66",
+    "#B86B84",
+    "#8A8D8F",
+]
+
+STAFF_RANKED_COLORS = [
+    "#EBF5F3",
+    "#F3E9CA",
+    "#D4EAE6",
+    "#E8E5DF",
+    "#C7D8D3",
+    "#A57F2C",
+    "#7EC8BE",
+    "#006657",
+    "#9B2247",
+    "#611232",
+]
+
+AGE_GROUP_COLORS = {
+    "Embarazadas": "#D45087",
+    "Puérperas": "#F58518",
+    "Niñas, niños y adolescentes": "#4C78A8",
+    "NNA": "#4C78A8",
+    "Adultos": "#54A24B",
+    "Adultos mayores": "#B279A2",
+}
+
 
 st.set_page_config(
     page_title="Estrategia de Atención Proactiva, 2026",
@@ -22,31 +72,90 @@ st.set_page_config(
 CSS = """
 <style>
 :root {
-  --ap-green: #235b4e;
-  --ap-gold: #bc955c;
-  --ap-ink: #1f2933;
-  --ap-bg: #f5f7f4;
+  --ap-green: #006657;
+  --ap-green-dark: #002F2A;
+  --ap-green-mid: #1E5B4F;
+  --ap-wine: #9B2247;
+  --ap-wine-dark: #611232;
+  --ap-gold: #A57F2C;
+  --ap-gold-light: #E6D194;
+  --ap-ink: #161A1D;
+  --ap-ink-soft: #3D4045;
+  --ap-muted: #72706E;
+  --ap-bg: #F2F0EC;
+  --ap-bg-2: #E8E5DF;
+  --ap-card: #FFFFFF;
+  --ap-border: #D4CFC8;
+  --ap-radius: 6px;
+  --ap-shadow: 0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
 }
-.stApp { background: var(--ap-bg); color: var(--ap-ink); }
-.block-container { padding-top: 1.4rem; padding-bottom: 3rem; }
-h1, h2, h3 { color: var(--ap-green); letter-spacing: 0; }
+.stApp { background: var(--ap-bg); color: var(--ap-ink); font-family: Arial, Helvetica, sans-serif; }
+.block-container { padding-top: 1.1rem; padding-bottom: 3rem; max-width: 1540px; }
+h1, h2, h3 { color: var(--ap-green-mid); letter-spacing: 0; font-family: Arial, Helvetica, sans-serif; }
+h1 { font-size: 2rem; line-height: 1.1; }
+h2, h3 { font-size: 1.15rem; }
 .ap-title {
-  border-left: 8px solid var(--ap-gold);
-  padding-left: 16px;
-  margin-bottom: 18px;
+  background: var(--ap-green-dark);
+  border-bottom: 3px solid var(--ap-gold);
+  border-radius: var(--ap-radius);
+  box-shadow: var(--ap-shadow);
+  padding: 16px 22px;
+  margin-bottom: 16px;
+}
+.ap-title h1 {
+  color: var(--ap-gold-light);
+  margin: 0;
+}
+[data-testid="stSidebar"] {
+  background: #FFFFFF;
+  border-right: 1px solid var(--ap-border);
+}
+[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+  color: var(--ap-green-dark);
+}
+div[data-testid="stTabs"] button {
+  border-radius: var(--ap-radius) var(--ap-radius) 0 0;
+  color: var(--ap-muted);
+  font-weight: 700;
+}
+div[data-testid="stTabs"] button[aria-selected="true"] {
+  color: var(--ap-green-dark);
+  border-bottom-color: var(--ap-gold);
+}
+div[data-testid="stDataFrame"] {
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius);
+  box-shadow: var(--ap-shadow);
+  overflow: hidden;
+}
+.stPlotlyChart {
+  background: var(--ap-card);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius);
+  box-shadow: var(--ap-shadow);
+  padding: 10px 10px 4px;
+}
+.stMarkdown h3, .stMarkdown h2 {
+  color: var(--ap-green-mid);
 }
 .app-footer {
-  border-top: 1px solid #d7ded8;
-  color: #52615a;
+  border-top: 1px solid var(--ap-border);
+  color: var(--ap-muted);
   font-size: 13px;
   margin-top: 28px;
   padding-top: 12px;
   text-align: center;
 }
 .filter-summary {
-  color: #52615a;
+  background: #FFFFFF;
+  border: 1px solid var(--ap-border);
+  border-left: 5px solid var(--ap-gold);
+  border-radius: var(--ap-radius);
+  box-shadow: var(--ap-shadow);
+  color: var(--ap-ink-soft);
   font-size: 14px;
   margin: 0 0 14px;
+  padding: 10px 13px;
 }
 </style>
 """
@@ -702,6 +811,11 @@ def prevention_promotion_summary(df: pd.DataFrame) -> dict:
         "Persona Cuidadora__fila_315",
         "Persona Cuidadora__fila_403",
     ]
+    family_delivery_columns = [
+        "PFAM Entrega de ácido fólico y vitaminas",
+        "PFAM Entrega de vida suero oral",
+        "PFAM Entrega de material",
+    ]
 
     detections = sum_columns(df, detection_columns)
     positives = sum_columns(df, positive_columns)
@@ -716,6 +830,7 @@ def prevention_promotion_summary(df: pd.DataFrame) -> dict:
         "caregivers": sum_columns(df, caregiver_columns),
         "zarit": zarit,
         "zarit_positivity": zarit_positive / zarit if zarit else 0,
+        "family_deliveries": sum_columns(df, family_delivery_columns),
     }
 
 
@@ -807,22 +922,40 @@ def show_table(title: str, df: pd.DataFrame) -> None:
     st.dataframe(df, hide_index=True, use_container_width=True)
 
 
-def show_pie_chart(df: pd.DataFrame, names: str, values: str, title: str) -> None:
+def value_color_map(df: pd.DataFrame, names: str, values: str, colors: list[str]) -> dict[str, str]:
+    ranked = df.sort_values(values, ascending=False)[names].tolist()
+    return {name: colors[index % len(colors)] for index, name in enumerate(ranked)}
+
+
+def show_pie_chart(
+    df: pd.DataFrame,
+    names: str,
+    values: str,
+    title: str,
+    color_map: dict[str, str] | None = None,
+    color_sequence: list[str] | None = None,
+    hover_percent_only: bool = False,
+) -> None:
+    color_arg = names if color_map else None
     fig = px.pie(
         df,
         names=names,
         values=values,
         title=title,
         hole=0.35,
-        color_discrete_sequence=["#235b4e", "#bc955c", "#9f2241", "#547a6f", "#d7b377"],
+        color=color_arg,
+        color_discrete_map=color_map,
+        color_discrete_sequence=color_sequence or GENERAL_CHART_COLORS,
     )
     fig.update_traces(textposition="inside", textinfo="percent+label")
+    if hover_percent_only:
+        fig.update_traces(hovertemplate="%{percent:.1%}<extra></extra>")
     fig.update_layout(
-        title_font_color="#235b4e",
+        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
         title_font_size=18,
         margin=dict(t=50, b=20, l=20, r=20),
         legend_title_text="",
-        font=dict(family="Arial, sans-serif", size=14, color="#1f2933"),
+        font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
@@ -839,20 +972,24 @@ def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: boo
         text=y,
         color=x if not horizontal else None,
         orientation="h" if horizontal else "v",
-        color_discrete_sequence=["#235b4e", "#bc955c", "#9f2241", "#547a6f", "#d7b377", "#6f6f6f"],
+        color_discrete_sequence=GENERAL_CHART_COLORS,
     )
     if horizontal:
-        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside", marker_color="#235b4e")
+        marker_color = [
+            AGE_GROUP_COLORS.get(label, INSTITUTIONAL_PALETTE["green_1"])
+            for label in chart_df[x].tolist()
+        ]
+        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside", marker_color=marker_color)
     else:
         fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
     fig.update_layout(
-        title_font_color="#235b4e",
+        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
         title_font_size=18,
         xaxis_title="Total" if horizontal else "",
         yaxis_title="" if horizontal else "Total",
         showlegend=False,
         margin=dict(t=60, b=90 if not horizontal else 20, l=40 if not horizontal else 190, r=50),
-        font=dict(family="Arial, sans-serif", size=14, color="#1f2933"),
+        font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
@@ -888,7 +1025,8 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         color="Componente",
         orientation="h",
         title="Indicadores de avance, a nivel nacional",
-        color_discrete_map={"Avance": "#235b4e", "Restante": "#d7ded8"},
+        category_orders={"Indicador": chart_df["Indicador"].tolist()[::-1]},
+        color_discrete_map={"Avance": INSTITUTIONAL_PALETTE["green_1"], "Restante": INSTITUTIONAL_PALETTE["border"]},
         custom_data=["Resultado", "Meta texto", "Comparacion"],
     )
     fig.update_traces(
@@ -898,7 +1036,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         x=chart_df["Meta grafica"],
         y=chart_df["Indicador"],
         mode="markers+text",
-        marker=dict(symbol="line-ns-open", size=18, color="#9f2241", line=dict(width=3)),
+        marker=dict(symbol="line-ns-open", size=18, color=INSTITUTIONAL_PALETTE["wine_1"], line=dict(width=3)),
         text=chart_df["Meta texto"],
         textposition="middle right",
         name="Meta",
@@ -906,14 +1044,14 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
     )
     fig.update_layout(
         barmode="stack",
-        title_font_color="#235b4e",
+        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
         title_font_size=18,
         xaxis_title="Avance",
         yaxis_title="",
         xaxis=dict(tickformat=".0%", range=[0, 1]),
         legend_title_text="",
         margin=dict(t=60, b=40, l=260, r=40),
-        font=dict(family="Arial, sans-serif", size=14, color="#1f2933"),
+        font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
@@ -922,7 +1060,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
 
 def prevention_summary_table(summary: dict, talks: pd.DataFrame) -> pd.DataFrame:
     talks_total = float(talks["Total"].sum())
-    environment_actions = talks_total + summary["detections"]
+    environment_actions = talks_total + summary["detections"] + summary["family_deliveries"]
     rows = [
         ("Viviendas con intervenciones", format_integer(summary["houses"])),
         ("Familiares que recibieron acciones de prevención y promoción de la salud", format_integer(summary["family_members"])),
@@ -1004,7 +1142,13 @@ def main() -> None:
 
         chart_col1, chart_col2 = st.columns(2)
         with chart_col1:
-            show_pie_chart(people, "Grupo de edad", "Total", "Personas atendidas por grupo de edad")
+            show_pie_chart(
+                people,
+                "Grupo de edad",
+                "Total",
+                "Personas atendidas por grupo de edad",
+                color_map=AGE_GROUP_COLORS,
+            )
             st.dataframe(people, hide_index=True, use_container_width=True)
         with chart_col2:
             show_pie_chart(sex, "Sexo", "Total", "Personas atendidas por sexo")
@@ -1012,11 +1156,44 @@ def main() -> None:
 
         col1, col2 = st.columns(2)
         with col1:
-            show_table("Embarazadas y puerperio", pregnancy)
+            pregnancy_total = pregnancy[pregnancy["Concepto"] == "Total"].melt(
+                id_vars="Concepto",
+                var_name="Grupo de edad",
+                value_name="Total",
+            )
+            show_pie_chart(
+                pregnancy_total,
+                "Grupo de edad",
+                "Total",
+                "Embarazadas y puerperio",
+                color_map=AGE_GROUP_COLORS,
+            )
         with col2:
-            show_table("Ausentismo", absenteeism)
+            show_pie_chart(
+                absenteeism,
+                "Grupo de edad",
+                "Ausentismo",
+                "Ausentismo",
+                color_map=AGE_GROUP_COLORS,
+            )
 
-        show_table("Personas con discapacidad", disability)
+        dis_col1, dis_col2 = st.columns(2)
+        with dis_col1:
+            show_pie_chart(
+                disability,
+                "Grupo de edad",
+                "Discapacidad temporal",
+                "Personas con discapacidad temporal",
+                color_map=AGE_GROUP_COLORS,
+            )
+        with dis_col2:
+            show_pie_chart(
+                disability,
+                "Grupo de edad",
+                "Discapacidad permanente",
+                "Personas con discapacidad permanente",
+                color_map=AGE_GROUP_COLORS,
+            )
         show_table("Detecciones", detections)
 
     with tab3:
@@ -1033,6 +1210,8 @@ def main() -> None:
             "Perfil",
             "Total",
             "Perfiles del personal de Atención Proactiva",
+            color_map=value_color_map(proactive_staff, "Perfil", "Total", STAFF_RANKED_COLORS),
+            hover_percent_only=True,
         )
         show_bar_chart(
             patient_interventions,

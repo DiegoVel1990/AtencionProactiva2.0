@@ -13,6 +13,7 @@ La estructura general ya está creada y las cuatro pestañas principales ya tien
 - No se muestra opción para cargar CSV ni para modificar la ruta del archivo.
 - Barra lateral con filtros de casillas:
   - Año epidemiológico.
+  - Mes, si la columna existe en la base.
   - Estado.
   - CLUES.
 - Cada filtro incluye la opción `Todas`.
@@ -27,6 +28,7 @@ La estructura general ya está creada y las cuatro pestañas principales ya tien
 - Pestaña `Indicadores de avance` con:
   - Gráfica horizontal apilada de 8 indicadores con marcador de meta.
   - Tabla de numerador, denominador, meta y resultado.
+  - Esta pestaña se calcula siempre a nivel nacional y no cambia con los filtros.
 - Pestaña `Datos relevantes` con:
   - Gráfica de pastel y tabla de personas atendidas por grupo de edad.
   - Gráfica de pastel y tabla de personas atendidas por sexo.
@@ -35,7 +37,7 @@ La estructura general ya está creada y las cuatro pestañas principales ya tien
   - Tabla de personas con discapacidad.
   - Tabla de detecciones.
 - Pestaña `Intervenciones a los pacientes` con:
-  - Gráfica de barras `Perfiles del personal de Atención Proactiva`.
+  - Gráfica de pastel `Perfiles del personal de Atención Proactiva`.
   - Gráfica de barras `Intervenciones a pacientes con Atención Proactiva`.
   - Gráfica de barras `Población indígena/afromexicana atendida, por grupo`.
   - Gráfica de barras `Población Migrante atendida`.
