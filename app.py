@@ -11,53 +11,49 @@ import streamlit as st
 DEFAULT_DATA_PATH = "base_semanal_unidad_2026.parquet"
 
 INSTITUTIONAL_PALETTE = {
-    "green_1": "#006657",
-    "green_2": "#1E5B4F",
-    "green_3": "#002F2A",
-    "wine_1": "#9B2247",
-    "wine_2": "#611232",
-    "gold_1": "#E6D194",
-    "gold_2": "#A57F2C",
-    "bg": "#F2F0EC",
-    "bg_2": "#E8E5DF",
-    "border": "#D4CFC8",
-    "ink": "#161A1D",
-    "ink_2": "#3D4045",
+    "green_1": "#4D988B",
+    "green_2": "#1C4B56",
+    "green_3": "#1C4B56",
+    "wine_1": "#C25B75",
+    "wine_2": "#9F2241",
+    "gold_1": "#F7F3EC",
+    "gold_2": "#8D6A37",
+    "bg": "#F7F3EC",
+    "bg_2": "#F7F3EC",
+    "border": "#E6E8E7",
+    "ink": "#2A302E",
+    "ink_2": "#2A302E",
 }
 
 GENERAL_CHART_COLORS = [
-    "#006657",
-    "#A57F2C",
-    "#9B2247",
-    "#1E5B4F",
-    "#611232",
-    "#7C8782",
-    "#C8B37D",
-    "#4C6F66",
-    "#B86B84",
-    "#8A8D8F",
+    "#B8D8D3",
+    "#4D988B",
+    "#E5A3B2",
+    "#C25B75",
+    "#8D6A37",
+    "#8A908E",
 ]
 
 STAFF_RANKED_COLORS = [
-    "#EBF5F3",
-    "#F3E9CA",
-    "#D4EAE6",
-    "#E8E5DF",
-    "#C7D8D3",
-    "#A57F2C",
-    "#7EC8BE",
-    "#006657",
-    "#9B2247",
-    "#611232",
+    "#F7F3EC",
+    "#E6E8E7",
+    "#B8D8D3",
+    "#E5A3B2",
+    "#8A908E",
+    "#4D988B",
+    "#C25B75",
+    "#8D6A37",
+    "#1C4B56",
+    "#9F2241",
 ]
 
 AGE_GROUP_COLORS = {
-    "Embarazadas": "#D45087",
-    "Puérperas": "#F58518",
-    "Niñas, niños y adolescentes": "#4C78A8",
-    "NNA": "#4C78A8",
-    "Adultos": "#54A24B",
-    "Adultos mayores": "#B279A2",
+    "Embarazadas": "#D47A91",
+    "Puérperas": "#B08FA6",
+    "Niñas, niños y adolescentes": "#2B7C8D",
+    "NNA": "#2B7C8D",
+    "Adultos": "#1C4B56",
+    "Adultos mayores": "#A87E4A",
 }
 
 
@@ -72,20 +68,20 @@ st.set_page_config(
 CSS = """
 <style>
 :root {
-  --ap-green: #006657;
-  --ap-green-dark: #002F2A;
-  --ap-green-mid: #1E5B4F;
-  --ap-wine: #9B2247;
-  --ap-wine-dark: #611232;
-  --ap-gold: #A57F2C;
-  --ap-gold-light: #E6D194;
-  --ap-ink: #161A1D;
-  --ap-ink-soft: #3D4045;
-  --ap-muted: #72706E;
-  --ap-bg: #F2F0EC;
-  --ap-bg-2: #E8E5DF;
+  --ap-green: #4D988B;
+  --ap-green-dark: #1C4B56;
+  --ap-green-mid: #1C4B56;
+  --ap-wine: #C25B75;
+  --ap-wine-dark: #9F2241;
+  --ap-gold: #8D6A37;
+  --ap-gold-light: #F7F3EC;
+  --ap-ink: #2A302E;
+  --ap-ink-soft: #2A302E;
+  --ap-muted: #8A908E;
+  --ap-bg: #F7F3EC;
+  --ap-bg-2: #F7F3EC;
   --ap-card: #FFFFFF;
-  --ap-border: #D4CFC8;
+  --ap-border: #E6E8E7;
   --ap-radius: 6px;
   --ap-shadow: 0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
 }
@@ -121,19 +117,6 @@ div[data-testid="stTabs"] button {
 div[data-testid="stTabs"] button[aria-selected="true"] {
   color: var(--ap-green-dark);
   border-bottom-color: var(--ap-gold);
-}
-div[data-testid="stDataFrame"] {
-  border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius);
-  box-shadow: var(--ap-shadow);
-  overflow: hidden;
-}
-.stPlotlyChart {
-  background: var(--ap-card);
-  border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius);
-  box-shadow: var(--ap-shadow);
-  padding: 10px 10px 4px;
 }
 .stMarkdown h3, .stMarkdown h2 {
   color: var(--ap-green-mid);
@@ -949,7 +932,7 @@ def show_pie_chart(
     )
     fig.update_traces(textposition="inside", textinfo="percent+label")
     if hover_percent_only:
-        fig.update_traces(hovertemplate="%{percent:.1%}<extra></extra>")
+        fig.update_traces(hovertemplate="<b>%{label}</b><br>%{percent:.1%}<extra></extra>")
     fig.update_layout(
         title_font_color=INSTITUTIONAL_PALETTE["green_2"],
         title_font_size=18,
@@ -1156,18 +1139,7 @@ def main() -> None:
 
         col1, col2 = st.columns(2)
         with col1:
-            pregnancy_total = pregnancy[pregnancy["Concepto"] == "Total"].melt(
-                id_vars="Concepto",
-                var_name="Grupo de edad",
-                value_name="Total",
-            )
-            show_pie_chart(
-                pregnancy_total,
-                "Grupo de edad",
-                "Total",
-                "Embarazadas y puerperio",
-                color_map=AGE_GROUP_COLORS,
-            )
+            show_table("Embarazadas y puerperio", pregnancy)
         with col2:
             show_pie_chart(
                 absenteeism,
