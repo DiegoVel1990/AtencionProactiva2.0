@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 from typing import Iterable
 
@@ -9,15 +10,21 @@ import streamlit as st
 
 
 DEFAULT_DATA_PATH = "base_semanal_unidad_2026.parquet"
+LOCAL_LOGO_PATH = (
+    Path("C:/Users/diego.velazquez.OPDIB/OneDrive - IMSS-BIENESTAR/Documentos/IMSS-B/05 Logos y formatos/2025/")
+    / "Logotipos-20250115T173410Z-001/Logotipos/"
+    / "Logo IMSS-BIENESTAR_Servicios Publicos de Salud_FINAL-25NOV2024_logo IMSS-BIENESTAR H Blanco.png"
+)
+REPO_LOGO_PATH = Path(__file__).with_name("assets") / "logo_imss_bienestar_blanco.png"
 
 INSTITUTIONAL_PALETTE = {
-    "green_1": "#4D988B",
-    "green_2": "#1C4B56",
-    "green_3": "#1C4B56",
-    "wine_1": "#C25B75",
-    "wine_2": "#9F2241",
-    "gold_1": "#F7F3EC",
-    "gold_2": "#8D6A37",
+    "green_1": "#006657",
+    "green_2": "#235B4E",
+    "green_3": "#10312B",
+    "wine_1": "#9F2241",
+    "wine_2": "#691C32",
+    "gold_1": "#BC955C",
+    "gold_2": "#DDC9A3",
     "bg": "#F7F3EC",
     "bg_2": "#F7F3EC",
     "border": "#E6E8E7",
@@ -68,13 +75,13 @@ st.set_page_config(
 CSS = """
 <style>
 :root {
-  --ap-green: #4D988B;
-  --ap-green-dark: #1C4B56;
-  --ap-green-mid: #1C4B56;
-  --ap-wine: #C25B75;
-  --ap-wine-dark: #9F2241;
-  --ap-gold: #8D6A37;
-  --ap-gold-light: #F7F3EC;
+  --ap-green: #006657;
+  --ap-green-dark: #10312B;
+  --ap-green-mid: #235B4E;
+  --ap-wine: #9F2241;
+  --ap-wine-dark: #691C32;
+  --ap-gold: #BC955C;
+  --ap-gold-light: #DDC9A3;
   --ap-ink: #2A302E;
   --ap-ink-soft: #2A302E;
   --ap-muted: #8A908E;
@@ -91,16 +98,35 @@ h1, h2, h3 { color: var(--ap-green-mid); letter-spacing: 0; font-family: Arial, 
 h1 { font-size: 2rem; line-height: 1.1; }
 h2, h3 { font-size: 1.15rem; }
 .ap-title {
-  background: var(--ap-green-dark);
+  align-items: center;
+  background: var(--ap-green);
   border-bottom: 3px solid var(--ap-gold);
-  border-radius: var(--ap-radius);
   box-shadow: var(--ap-shadow);
-  padding: 16px 22px;
+  display: flex;
+  gap: 22px;
+  left: 50%;
   margin-bottom: 16px;
+  margin-left: -50vw;
+  padding: 16px max(24px, calc((100vw - 1540px) / 2 + 24px));
+  position: relative;
+  width: 100vw;
 }
 .ap-title h1 {
-  color: var(--ap-gold-light);
+  color: #FFFFFF;
+  font-size: 1.75rem;
   margin: 0;
+}
+.ap-title-sub {
+  color: var(--ap-gold-light);
+  font-size: .95rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.ap-title-logo {
+  flex: 0 0 auto;
+  max-height: 54px;
+  max-width: 290px;
+  object-fit: contain;
 }
 [data-testid="stSidebar"] {
   background: #FFFFFF;
@@ -120,6 +146,12 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
 }
 .stMarkdown h3, .stMarkdown h2 {
   color: var(--ap-green-mid);
+}
+.element-title {
+  color: var(--ap-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 12px 0 8px;
 }
 .app-footer {
   border-top: 1px solid var(--ap-border);
@@ -142,6 +174,35 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
 }
 </style>
 """
+
+
+def logo_data_uri() -> str:
+    for logo_path in (REPO_LOGO_PATH, LOCAL_LOGO_PATH):
+        if logo_path.exists():
+            encoded = base64.b64encode(logo_path.read_bytes()).decode("ascii")
+            return f"data:image/png;base64,{encoded}"
+    return ""
+
+
+def render_title_banner() -> None:
+    logo_uri = logo_data_uri()
+    logo_html = f'<img class="ap-title-logo" src="{logo_uri}" alt="IMSS-BIENESTAR">' if logo_uri else ""
+    st.markdown(
+        f"""
+        <div class="ap-title">
+          {logo_html}
+          <div>
+            <h1>Estrategia de Atención Proactiva, 2026</h1>
+            <div class="ap-title-sub">Coordinación de Unidades de Primer Nivel</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def show_element_title(title: str) -> None:
+    st.markdown(f'<div class="element-title">{title}</div>', unsafe_allow_html=True)
 
 
 def resolve_data_path(path_text: str) -> str:
@@ -901,7 +962,7 @@ def _legacy_render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> N
 
 
 def show_table(title: str, df: pd.DataFrame) -> None:
-    st.subheader(title)
+    show_element_title(title)
     st.dataframe(df, hide_index=True, use_container_width=True)
 
 
@@ -919,12 +980,13 @@ def show_pie_chart(
     color_sequence: list[str] | None = None,
     hover_percent_only: bool = False,
 ) -> None:
+    show_element_title(title)
     color_arg = names if color_map else None
     fig = px.pie(
         df,
         names=names,
         values=values,
-        title=title,
+        title=None,
         hole=0.35,
         color=color_arg,
         color_discrete_map=color_map,
@@ -934,9 +996,7 @@ def show_pie_chart(
     if hover_percent_only:
         fig.update_traces(hovertemplate="<b>%{label}</b><br>%{percent:.1%}<extra></extra>")
     fig.update_layout(
-        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
-        title_font_size=18,
-        margin=dict(t=50, b=20, l=20, r=20),
+        margin=dict(t=8, b=20, l=20, r=20),
         legend_title_text="",
         font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -946,12 +1006,13 @@ def show_pie_chart(
 
 
 def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: bool = False) -> None:
+    show_element_title(title)
     chart_df = df.sort_values(y, ascending=True if horizontal else False)
     fig = px.bar(
         chart_df,
         x=y if horizontal else x,
         y=x if horizontal else y,
-        title=title,
+        title=None,
         text=y,
         color=x if not horizontal else None,
         orientation="h" if horizontal else "v",
@@ -966,12 +1027,10 @@ def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: boo
     else:
         fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
     fig.update_layout(
-        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
-        title_font_size=18,
         xaxis_title="Total" if horizontal else "",
         yaxis_title="" if horizontal else "Total",
         showlegend=False,
-        margin=dict(t=60, b=90 if not horizontal else 20, l=40 if not horizontal else 190, r=50),
+        margin=dict(t=8, b=90 if not horizontal else 20, l=40 if not horizontal else 190, r=50),
         font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -980,6 +1039,7 @@ def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: boo
 
 
 def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
+    show_element_title("Indicadores de avance, a nivel nacional")
     chart_df = indicators.copy()
     chart_df["Avance"] = chart_df.apply(
         lambda row: min(row["Valor"] / row["Meta"], 1) if row["Tipo"].startswith("Raz") and row["Meta"] else min(row["Valor"], 1),
@@ -1000,16 +1060,24 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         var_name="Componente",
         value_name="Proporción",
     )
+    long_df["Estado visual"] = long_df.apply(
+        lambda row: "Restante" if row["Componente"] == "Restante" else row["Comparacion"],
+        axis=1,
+    )
 
     fig = px.bar(
         long_df,
         x="Proporción",
         y="Indicador",
-        color="Componente",
+        color="Estado visual",
         orientation="h",
-        title="Indicadores de avance, a nivel nacional",
+        title=None,
         category_orders={"Indicador": chart_df["Indicador"].tolist()[::-1]},
-        color_discrete_map={"Avance": INSTITUTIONAL_PALETTE["green_1"], "Restante": INSTITUTIONAL_PALETTE["border"]},
+        color_discrete_map={
+            "Supera o cumple meta": "#10312B",
+            "Por debajo de meta": "#4D988B",
+            "Restante": "#E6E8E7",
+        },
         custom_data=["Resultado", "Meta texto", "Comparacion"],
     )
     fig.update_traces(
@@ -1027,13 +1095,11 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
     )
     fig.update_layout(
         barmode="stack",
-        title_font_color=INSTITUTIONAL_PALETTE["green_2"],
-        title_font_size=18,
         xaxis_title="Avance",
         yaxis_title="",
         xaxis=dict(tickformat=".0%", range=[0, 1]),
         legend_title_text="",
-        margin=dict(t=60, b=40, l=260, r=40),
+        margin=dict(t=8, b=40, l=260, r=40),
         font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1066,7 +1132,7 @@ def health_talks_display_table(talks: pd.DataFrame) -> pd.DataFrame:
 
 
 def render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> None:
-    st.subheader("Acciones de prevención y promoción de la salud")
+    show_element_title("Acciones de prevención y promoción de la salud")
     talk_label_column = talks.columns[0]
     left, right = st.columns([1, 1])
     with left:
@@ -1083,10 +1149,7 @@ def render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> None:
 
 def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
-    st.markdown(
-        '<div class="ap-title"><h1>Estrategia de Atención Proactiva, 2026</h1></div>',
-        unsafe_allow_html=True,
-    )
+    render_title_banner()
 
     try:
         df = load_data(DEFAULT_DATA_PATH)
@@ -1109,7 +1172,7 @@ def main() -> None:
         indicators = indicator_summary(df)
         show_stacked_indicator_chart(indicators)
         indicator_table = indicators[["Indicador", "Tipo", "Numerador", "Denominador", "Meta texto", "Resultado"]]
-        st.subheader("Indicadores de avance, a nivel nacional")
+        show_element_title("Indicadores de avance, a nivel nacional")
         st.dataframe(indicator_table, hide_index=True, use_container_width=True)
 
     with tab2:
@@ -1134,7 +1197,13 @@ def main() -> None:
             )
             st.dataframe(people, hide_index=True, use_container_width=True)
         with chart_col2:
-            show_pie_chart(sex, "Sexo", "Total", "Personas atendidas por sexo")
+            show_pie_chart(
+                sex,
+                "Sexo",
+                "Total",
+                "Personas atendidas por sexo",
+                color_map={"Hombres": "#235B4E", "Mujeres": "#9F2241"},
+            )
             st.dataframe(sex, hide_index=True, use_container_width=True)
 
         col1, col2 = st.columns(2)
