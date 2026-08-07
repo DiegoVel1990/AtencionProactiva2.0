@@ -41,6 +41,28 @@ GENERAL_CHART_COLORS = [
     "#8A908E",
 ]
 
+STAFF_COLOR_MAP = {
+    "Médica(o) general": "#DDC9A3",
+    "Enfermera(o)": "#B8D8D3",
+    "Promotor(a) de salud": "#4D988B",
+    "Nutriólogo(a)": "#9F2241",
+    "Psicólogo(a)": "#006657",
+    "Fisioterapeuta": "#8A908E",
+    "Odontólogo(a)": "#C25B75",
+    "Trabajador(a) social": "#10312B",
+    "Administrativo(a)": "#8D6A37",
+    "Otro personal": "#E5A3B2",
+}
+
+VISIT_CONCLUSION_COLOR_MAP = {
+    "Cita en USPN": "#006657",
+    "Referencia a 2ndo nivel": "#BC955C",
+    "Referencia a USPN": "#235B4E",
+    "Próxima visita en domicilio": "#10312B",
+    "Expidió nueva receta": "#691C32",
+    "Surtió nueva receta": "#9F2241",
+}
+
 STAFF_RANKED_COLORS = [
     "#F7F3EC",
     "#E6E8E7",
@@ -99,7 +121,7 @@ h1 { font-size: 2rem; line-height: 1.1; }
 h2, h3 { font-size: 1.15rem; }
 .ap-title {
   align-items: center;
-  background: var(--ap-green);
+  background: #235B4E;
   border-bottom: 3px solid var(--ap-gold);
   box-shadow: var(--ap-shadow);
   display: flex;
@@ -118,7 +140,7 @@ h2, h3 { font-size: 1.15rem; }
 }
 .ap-title-sub {
   color: var(--ap-gold-light);
-  font-size: .95rem;
+  font-size: 1.08rem;
   font-weight: 600;
   margin-top: 4px;
 }
@@ -149,9 +171,18 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
 }
 .element-title {
   color: var(--ap-ink);
-  font-size: 1rem;
+  font-size: .98rem;
   font-weight: 700;
   margin: 12px 0 8px;
+}
+.tab-title {
+  border-left: 6px solid var(--ap-gold);
+  color: var(--ap-green-mid);
+  font-size: 1.28rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 4px 0 16px;
+  padding-left: 12px;
 }
 .app-footer {
   border-top: 1px solid var(--ap-border);
@@ -203,6 +234,10 @@ def render_title_banner() -> None:
 
 def show_element_title(title: str) -> None:
     st.markdown(f'<div class="element-title">{title}</div>', unsafe_allow_html=True)
+
+
+def show_tab_title(title: str) -> None:
+    st.markdown(f'<div class="tab-title">{title}</div>', unsafe_allow_html=True)
 
 
 def resolve_data_path(path_text: str) -> str:
@@ -962,7 +997,7 @@ def _legacy_render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> N
 
 
 def show_table(title: str, df: pd.DataFrame) -> None:
-    show_element_title(title)
+    show_element_title(f"Tabla. {title}")
     st.dataframe(df, hide_index=True, use_container_width=True)
 
 
@@ -980,7 +1015,7 @@ def show_pie_chart(
     color_sequence: list[str] | None = None,
     hover_percent_only: bool = False,
 ) -> None:
-    show_element_title(title)
+    show_element_title(f"Gráfica. {title}")
     color_arg = names if color_map else None
     fig = px.pie(
         df,
@@ -1005,8 +1040,15 @@ def show_pie_chart(
     st.plotly_chart(fig, use_container_width=True)
 
 
-def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: bool = False) -> None:
-    show_element_title(title)
+def show_bar_chart(
+    df: pd.DataFrame,
+    x: str,
+    y: str,
+    title: str,
+    horizontal: bool = False,
+    color_map: dict[str, str] | None = None,
+) -> None:
+    show_element_title(f"Gráfica. {title}")
     chart_df = df.sort_values(y, ascending=True if horizontal else False)
     fig = px.bar(
         chart_df,
@@ -1014,13 +1056,14 @@ def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: boo
         y=x if horizontal else y,
         title=None,
         text=y,
-        color=x if not horizontal else None,
+        color=x if (not horizontal and color_map) else None,
         orientation="h" if horizontal else "v",
+        color_discrete_map=color_map,
         color_discrete_sequence=GENERAL_CHART_COLORS,
     )
     if horizontal:
         marker_color = [
-            AGE_GROUP_COLORS.get(label, INSTITUTIONAL_PALETTE["green_1"])
+            (color_map or AGE_GROUP_COLORS).get(label, INSTITUTIONAL_PALETTE["green_1"])
             for label in chart_df[x].tolist()
         ]
         fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside", marker_color=marker_color)
@@ -1039,7 +1082,7 @@ def show_bar_chart(df: pd.DataFrame, x: str, y: str, title: str, horizontal: boo
 
 
 def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
-    show_element_title("Indicadores de avance, a nivel nacional")
+    show_element_title("Gráfica. Indicadores de avance, a nivel nacional")
     chart_df = indicators.copy()
     chart_df["Avance"] = chart_df.apply(
         lambda row: min(row["Valor"] / row["Meta"], 1) if row["Tipo"].startswith("Raz") and row["Meta"] else min(row["Valor"], 1),
@@ -1074,7 +1117,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         title=None,
         category_orders={"Indicador": chart_df["Indicador"].tolist()[::-1]},
         color_discrete_map={
-            "Supera o cumple meta": "#10312B",
+            "Supera o cumple meta": "#235B4E",
             "Por debajo de meta": "#4D988B",
             "Restante": "#E6E8E7",
         },
@@ -1087,7 +1130,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         x=chart_df["Meta grafica"],
         y=chart_df["Indicador"],
         mode="markers+text",
-        marker=dict(symbol="line-ns-open", size=18, color=INSTITUTIONAL_PALETTE["wine_1"], line=dict(width=3)),
+        marker=dict(symbol="line-ns-open", size=18, color="#BC955C", line=dict(width=3)),
         text=chart_df["Meta texto"],
         textposition="middle right",
         name="Meta",
@@ -1132,7 +1175,6 @@ def health_talks_display_table(talks: pd.DataFrame) -> pd.DataFrame:
 
 
 def render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> None:
-    show_element_title("Acciones de prevención y promoción de la salud")
     talk_label_column = talks.columns[0]
     left, right = st.columns([1, 1])
     with left:
@@ -1169,13 +1211,14 @@ def main() -> None:
     )
 
     with tab1:
+        show_tab_title("Indicadores de avance")
         indicators = indicator_summary(df)
         show_stacked_indicator_chart(indicators)
         indicator_table = indicators[["Indicador", "Tipo", "Numerador", "Denominador", "Meta texto", "Resultado"]]
-        show_element_title("Indicadores de avance, a nivel nacional")
-        st.dataframe(indicator_table, hide_index=True, use_container_width=True)
+        show_table("Indicadores de avance, a nivel nacional", indicator_table)
 
     with tab2:
+        show_tab_title("Datos relevantes")
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
@@ -1195,7 +1238,7 @@ def main() -> None:
                 "Personas atendidas por grupo de edad",
                 color_map=AGE_GROUP_COLORS,
             )
-            st.dataframe(people, hide_index=True, use_container_width=True)
+            show_table("Personas atendidas por grupo de edad", people)
         with chart_col2:
             show_pie_chart(
                 sex,
@@ -1204,7 +1247,7 @@ def main() -> None:
                 "Personas atendidas por sexo",
                 color_map={"Hombres": "#235B4E", "Mujeres": "#9F2241"},
             )
-            st.dataframe(sex, hide_index=True, use_container_width=True)
+            show_table("Personas atendidas por sexo", sex)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -1238,6 +1281,7 @@ def main() -> None:
         show_table("Detecciones", detections)
 
     with tab3:
+        show_tab_title("Intervenciones a los pacientes")
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
@@ -1251,7 +1295,7 @@ def main() -> None:
             "Perfil",
             "Total",
             "Perfiles del personal de Atención Proactiva",
-            color_map=value_color_map(proactive_staff, "Perfil", "Total", STAFF_RANKED_COLORS),
+            color_map=STAFF_COLOR_MAP,
             hover_percent_only=True,
         )
         show_bar_chart(
@@ -1284,8 +1328,10 @@ def main() -> None:
             "Conclusión de la visita",
             "Total",
             "Conclusión de la visita",
+            color_map=VISIT_CONCLUSION_COLOR_MAP,
         )
     with tab4:
+        show_tab_title("Acciones de prevención y promoción a la salud")
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
