@@ -80,9 +80,12 @@ AGE_GROUP_COLORS = {
     "Embarazadas": "#D47A91",
     "Puérperas": "#B08FA6",
     "Niñas, niños y adolescentes": "#2B7C8D",
+    "Niñas, niños y adolescentes <18": "#2B7C8D",
     "NNA": "#2B7C8D",
     "Adultos": "#1C4B56",
+    "Adultos 18 - 59": "#1C4B56",
     "Adultos mayores": "#A87E4A",
+    "Adultos mayores >=60": "#A87E4A",
 }
 
 
@@ -184,6 +187,13 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
   margin: 4px 0 16px;
   padding-left: 12px;
 }
+.tab-context {
+  color: var(--ap-ink-soft);
+  font-size: .98rem;
+  line-height: 1.45;
+  margin: -6px 0 16px;
+  max-width: 980px;
+}
 .app-footer {
   border-top: 1px solid var(--ap-border);
   color: var(--ap-muted);
@@ -238,6 +248,10 @@ def show_element_title(title: str) -> None:
 
 def show_tab_title(title: str) -> None:
     st.markdown(f'<div class="tab-title">{title}</div>', unsafe_allow_html=True)
+
+
+def show_tab_context(text: str) -> None:
+    st.markdown(f'<div class="tab-context">{text}</div>', unsafe_allow_html=True)
 
 
 def resolve_data_path(path_text: str) -> str:
@@ -621,6 +635,7 @@ def absenteeism_summary(df: pd.DataFrame) -> pd.DataFrame:
 def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
     rows = [
         {
+            "Tipo de detección": "Salud mental",
             "Detección": "Ansiedad y Depresión",
             "NNA": sum_columns(df, ["Positivo Depresión__fila_241", "Positivo Ansiedad__fila_251"]),
             "Adultos": sum_columns(df, ["Positivo Depresión__fila_329", "Positivo Ansiedad__fila_339"]),
@@ -629,6 +644,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Depresión__fila_140", "Positivo Ansiedad__fila_150"]),
         },
         {
+            "Tipo de detección": "Salud mental",
             "Detección": "Riesgo de suicidio",
             "NNA": sum_columns(df, ["Positivo Riesgo de suicidio__fila_243"]),
             "Adultos": sum_columns(df, ["Positivo Riesgo de suicidio__fila_331"]),
@@ -637,6 +653,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Riesgo de suicidio__fila_142"]),
         },
         {
+            "Tipo de detección": "Riesgo metabólico",
             "Detección": "Obesidad",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_262"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_350"]),
@@ -645,6 +662,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_161"]),
         },
         {
+            "Tipo de detección": "Riesgo metabólico",
             "Detección": "DM",
             "NNA": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_266"]),
             "Adultos": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_354"]),
@@ -653,6 +671,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_165"]),
         },
         {
+            "Tipo de detección": "Riesgo metabólico",
             "Detección": "HAS",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_264"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_352"]),
@@ -661,6 +680,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_163"]),
         },
         {
+            "Tipo de detección": "Riesgo metabólico",
             "Detección": "Dislipidemias",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_268"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_356"]),
@@ -669,6 +689,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_167"]),
         },
         {
+            "Tipo de detección": "Consumo de sustancias",
             "Detección": "Alcohol, Tabaco y Otras sustancias",
             "NNA": sum_columns(df, ["Positivo Consumo de alcohol__fila_245", "Positivo Consumo de tabaco__fila_247", "Positivo Consumo de otras sustancias__fila_249"]),
             "Adultos": sum_columns(df, ["Positivo Consumo de alcohol__fila_333", "Positivo Consumo de tabaco__fila_335", "Positivo Consumo de otras sustancias__fila_337"]),
@@ -677,6 +698,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Consumo de alcohol__fila_144", "Positivo Consumo de tabaco__fila_146", "Positivo Consumo de otras sustancias__fila_148"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Violencia Psicológica",
             "NNA": sum_columns(df, ["Psicológica__fila_255"]),
             "Adultos": sum_columns(df, ["Psicológica__fila_342"]),
@@ -685,6 +707,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Psicológica__fila_154"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Violencia Física",
             "NNA": sum_columns(df, ["Física__fila_254"]),
             "Adultos": sum_columns(df, ["Física__fila_342"]),
@@ -693,6 +716,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Física__fila_153"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Bullying",
             "NNA": sum_columns(df, ["Bullying__fila_259"]),
             "Adultos": sum_columns(df, ["Bullying__fila_347"]),
@@ -701,6 +725,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Bullying__fila_158"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Violencia Sexual",
             "NNA": sum_columns(df, ["Sexual__fila_256"]),
             "Adultos": sum_columns(df, ["Sexual__fila_344"]),
@@ -709,6 +734,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Sexual__fila_155"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Violencia Económica",
             "NNA": sum_columns(df, ["Económica__fila_258"]),
             "Adultos": sum_columns(df, ["Económica__fila_346"]),
@@ -717,6 +743,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Económica__fila_157"]),
         },
         {
+            "Tipo de detección": "Violencia",
             "Detección": "Abandono",
             "NNA": sum_columns(df, ["Abandono__fila_257"]),
             "Adultos": sum_columns(df, ["Abandono__fila_345"]),
@@ -725,6 +752,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Abandono__fila_156"]),
         },
         {
+            "Tipo de detección": "Referencia por violencia",
             "Detección": "Referencias",
             "NNA": sum_columns(df, ["Referidos a 1er nivel por violencia__fila_260"]),
             "Adultos": sum_columns(df, ["Referidos a 1er nivel por violencia__fila_348"]),
@@ -801,6 +829,38 @@ def visit_conclusion_summary(df: pd.DataFrame) -> pd.DataFrame:
     ]
     return pd.DataFrame(
         [{"Conclusión de la visita": label, "Total": sum_columns(df, columns)} for label, columns in rows]
+    )
+
+
+def visit_conclusion_by_age_group(df: pd.DataFrame, conclusion: str) -> pd.DataFrame:
+    conclusion_columns = {
+        "Referencia a USPN": {
+            "Embarazadas": ("Referencia 1er nivel__fila_90",),
+            "Puérperas": ("Referencia 1er nivel__fila_190",),
+            "Niñas, niños y adolescentes <18": ("Referencia 1er nivel__fila_291",),
+            "Adultos 18 - 59": ("Referencia 1er nivel__fila_379",),
+            "Adultos mayores >=60": ("Referencia 1er nivel__fila_483",),
+        },
+        "Referencia a 2ndo nivel": {
+            "Embarazadas": ("Referencia 2ndo nivel__fila_91",),
+            "Puérperas": ("Referencia 2ndo nivel__fila_191",),
+            "Niñas, niños y adolescentes <18": ("Referencia 2ndo nivel__fila_292",),
+            "Adultos 18 - 59": ("Referencia 2ndo nivel__fila_380",),
+            "Adultos mayores >=60": ("Referencia 2ndo nivel__fila_484",),
+        },
+        "Cita en USPN": {
+            "Embarazadas": ("Desenlace se asignó fecha proxima visita uspn__fila_92",),
+            "Puérperas": ("Desenlace se asignó fecha proxima visita uspn__fila_192",),
+            "Niñas, niños y adolescentes <18": ("Desenlace se asignó fecha proxima visita uspn__fila_293",),
+            "Adultos 18 - 59": ("Desenlace se asignó fecha proxima visita uspn__fila_381",),
+            "Adultos mayores >=60": ("Desenlace se asignó fecha proxima visita uspn__fila_485",),
+        },
+    }
+    return pd.DataFrame(
+        [
+            {"Grupo de edad": group, "Total": sum_columns(df, columns)}
+            for group, columns in conclusion_columns[conclusion].items()
+        ]
     )
 
 
@@ -1212,6 +1272,9 @@ def main() -> None:
 
     with tab1:
         show_tab_title("Indicadores de avance")
+        show_tab_context(
+            "Seguimiento de los principales indicadores y metas de la estrategia de Atención Proactiva en el contexto nacional."
+        )
         indicators = indicator_summary(df)
         show_stacked_indicator_chart(indicators)
         indicator_table = indicators[["Indicador", "Tipo", "Numerador", "Denominador", "Meta texto", "Resultado"]]
@@ -1219,6 +1282,9 @@ def main() -> None:
 
     with tab2:
         show_tab_title("Datos relevantes")
+        show_tab_context(
+            "Se muestra la distribución de la Atención Proactiva en la población por diversas categorías; así como datos de ausentismo de consulta, personas con discapacidad y detecciones realizadas a la población."
+        )
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
@@ -1228,6 +1294,8 @@ def main() -> None:
         disability = disability_summary(filtered)
         absenteeism = absenteeism_summary(filtered)
         detections = detections_summary(filtered)
+        ethnicity = ethnicity_summary(filtered)
+        migrant = migrant_summary(filtered)
 
         chart_col1, chart_col2 = st.columns(2)
         with chart_col1:
@@ -1278,17 +1346,36 @@ def main() -> None:
                 "Personas con discapacidad permanente",
                 color_map=AGE_GROUP_COLORS,
             )
+
+        ethnic_col1, ethnic_col2 = st.columns(2)
+        with ethnic_col1:
+            show_bar_chart(
+                ethnicity,
+                "Grupo",
+                "Total",
+                "Población indígena/afromexicana atendida, por grupo",
+                horizontal=True,
+            )
+        with ethnic_col2:
+            show_bar_chart(
+                migrant,
+                "Grupo",
+                "Total",
+                "Población Migrante atendida",
+                horizontal=True,
+            )
         show_table("Detecciones", detections)
 
     with tab3:
         show_tab_title("Intervenciones a los pacientes")
+        show_tab_context(
+            "Se muestran las principales intervenciones realizadas a los pacientes, así como el perfil del personal de AP y la conclusión de la visita."
+        )
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
         proactive_staff = proactive_staff_summary(filtered)
         patient_interventions = patient_interventions_summary(filtered)
-        ethnicity = ethnicity_summary(filtered)
-        migrant = migrant_summary(filtered)
 
         show_pie_chart(
             proactive_staff,
@@ -1305,23 +1392,6 @@ def main() -> None:
             "Intervenciones a pacientes con Atención Proactiva",
             horizontal=True,
         )
-        chart_col1, chart_col2 = st.columns(2)
-        with chart_col1:
-            show_bar_chart(
-                ethnicity,
-                "Grupo",
-                "Total",
-                "Población indígena/afromexicana atendida, por grupo",
-                horizontal=True,
-            )
-        with chart_col2:
-            show_bar_chart(
-                migrant,
-                "Grupo",
-                "Total",
-                "Población Migrante atendida",
-                horizontal=True,
-            )
         visit_conclusion = visit_conclusion_summary(filtered)
         show_bar_chart(
             visit_conclusion,
@@ -1330,8 +1400,24 @@ def main() -> None:
             "Conclusión de la visita",
             color_map=VISIT_CONCLUSION_COLOR_MAP,
         )
+        visit_cols = st.columns(3)
+        for chart_col, conclusion in zip(
+            visit_cols,
+            ("Referencia a USPN", "Referencia a 2ndo nivel", "Cita en USPN"),
+        ):
+            with chart_col:
+                show_pie_chart(
+                    visit_conclusion_by_age_group(filtered, conclusion),
+                    "Grupo de edad",
+                    "Total",
+                    f"{conclusion} por grupo de edad",
+                    color_map=AGE_GROUP_COLORS,
+                )
     with tab4:
         show_tab_title("Acciones de prevención y promoción a la salud")
+        show_tab_context(
+            "Principales acciones e intervenciones de prevención y promoción de la salud en el entorno familiar de los pacientes atendidos."
+        )
         show_filter_summary(filter_selections)
         if filtered.empty:
             st.warning("No hay registros con los filtros seleccionados.")
