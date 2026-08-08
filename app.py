@@ -63,6 +63,15 @@ VISIT_CONCLUSION_COLOR_MAP = {
     "Surtió nueva receta": "#9F2241",
 }
 
+VISIT_CONCLUSION_PIE_ORDER = [
+    "Referencia a USPN",
+    "Referencia a 2ndo nivel",
+    "Cita en USPN",
+    "Próxima visita en domicilio",
+    "Expidió nueva receta",
+    "Surtió nueva receta",
+]
+
 STAFF_RANKED_COLORS = [
     "#F7F3EC",
     "#E6E8E7",
@@ -835,25 +844,46 @@ def visit_conclusion_summary(df: pd.DataFrame) -> pd.DataFrame:
 def visit_conclusion_by_age_group(df: pd.DataFrame, conclusion: str) -> pd.DataFrame:
     conclusion_columns = {
         "Referencia a USPN": {
-            "Embarazadas": ("Referencia 1er nivel__fila_90",),
-            "Puérperas": ("Referencia 1er nivel__fila_190",),
             "Niñas, niños y adolescentes <18": ("Referencia 1er nivel__fila_291",),
             "Adultos 18 - 59": ("Referencia 1er nivel__fila_379",),
             "Adultos mayores >=60": ("Referencia 1er nivel__fila_483",),
+            "Embarazadas": ("Referencia 1er nivel__fila_90",),
+            "Puérperas": ("Referencia 1er nivel__fila_190",),
         },
         "Referencia a 2ndo nivel": {
-            "Embarazadas": ("Referencia 2ndo nivel__fila_91",),
-            "Puérperas": ("Referencia 2ndo nivel__fila_191",),
             "Niñas, niños y adolescentes <18": ("Referencia 2ndo nivel__fila_292",),
             "Adultos 18 - 59": ("Referencia 2ndo nivel__fila_380",),
             "Adultos mayores >=60": ("Referencia 2ndo nivel__fila_484",),
+            "Embarazadas": ("Referencia 2ndo nivel__fila_91",),
+            "Puérperas": ("Referencia 2ndo nivel__fila_191",),
         },
         "Cita en USPN": {
-            "Embarazadas": ("Desenlace se asignó fecha proxima visita uspn__fila_92",),
-            "Puérperas": ("Desenlace se asignó fecha proxima visita uspn__fila_192",),
             "Niñas, niños y adolescentes <18": ("Desenlace se asignó fecha proxima visita uspn__fila_293",),
             "Adultos 18 - 59": ("Desenlace se asignó fecha proxima visita uspn__fila_381",),
             "Adultos mayores >=60": ("Desenlace se asignó fecha proxima visita uspn__fila_485",),
+            "Embarazadas": ("Desenlace se asignó fecha proxima visita uspn__fila_92",),
+            "Puérperas": ("Desenlace se asignó fecha proxima visita uspn__fila_192",),
+        },
+        "Próxima visita en domicilio": {
+            "Niñas, niños y adolescentes <18": ("Desenlace se asignó fecha proxima visita domicilio__fila_294",),
+            "Adultos 18 - 59": ("Desenlace se asignó fecha proxima visita domicilio__fila_382",),
+            "Adultos mayores >=60": ("Desenlace se asignó fecha proxima visita domicilio__fila_486",),
+            "Embarazadas": ("Desenlace se asignó fecha proxima visita domicilio__fila_93",),
+            "Puérperas": ("Desenlace se asignó fecha proxima visita domicilio__fila_193",),
+        },
+        "Expidió nueva receta": {
+            "Niñas, niños y adolescentes <18": ("Desenlace Expidió nueva receta__fila_295",),
+            "Adultos 18 - 59": ("Desenlace Expidió nueva receta__fila_383",),
+            "Adultos mayores >=60": ("Desenlace Expidió nueva receta__fila_487",),
+            "Embarazadas": ("Desenlace Expidió nueva receta__fila_94",),
+            "Puérperas": ("Desenlace Expidió nueva receta__fila_194",),
+        },
+        "Surtió nueva receta": {
+            "Niñas, niños y adolescentes <18": ("Desenlace surtió nueva receta__fila_296",),
+            "Adultos 18 - 59": ("Desenlace surtió nueva receta__fila_384",),
+            "Adultos mayores >=60": ("Desenlace surtió nueva receta__fila_488",),
+            "Embarazadas": ("Desenlace surtió nueva receta__fila_95",),
+            "Puérperas": ("Desenlace surtió nueva receta__fila_195",),
         },
     }
     return pd.DataFrame(
@@ -1087,9 +1117,11 @@ def show_pie_chart(
         color_discrete_map=color_map,
         color_discrete_sequence=color_sequence or GENERAL_CHART_COLORS,
     )
-    fig.update_traces(textposition="inside", textinfo="percent+label")
-    if hover_percent_only:
-        fig.update_traces(hovertemplate="<b>%{label}</b><br>%{percent:.1%}<extra></extra>")
+    fig.update_traces(
+        textposition="outside",
+        textinfo="percent+label",
+        hovertemplate="<b>%{label}</b><br>%{percent:.1%}<extra></extra>",
+    )
     fig.update_layout(
         margin=dict(t=8, b=20, l=20, r=20),
         legend_title_text="",
