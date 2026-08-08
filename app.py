@@ -658,7 +658,7 @@ def absenteeism_summary(df: pd.DataFrame) -> pd.DataFrame:
 def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
     rows = [
         {
-            "Tipo de detección": "Salud mental",
+            "Tipo": "Salud Mental",
             "Detección": "Ansiedad y Depresión",
             "NNA": sum_columns(df, ["Positivo Depresión__fila_241", "Positivo Ansiedad__fila_251"]),
             "Adultos": sum_columns(df, ["Positivo Depresión__fila_329", "Positivo Ansiedad__fila_339"]),
@@ -667,7 +667,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Depresión__fila_140", "Positivo Ansiedad__fila_150"]),
         },
         {
-            "Tipo de detección": "Salud mental",
+            "Tipo": "Salud Mental",
             "Detección": "Riesgo de suicidio",
             "NNA": sum_columns(df, ["Positivo Riesgo de suicidio__fila_243"]),
             "Adultos": sum_columns(df, ["Positivo Riesgo de suicidio__fila_331"]),
@@ -676,7 +676,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Riesgo de suicidio__fila_142"]),
         },
         {
-            "Tipo de detección": "Riesgo metabólico",
+            "Tipo": "Cuestionario de riesgo",
             "Detección": "Obesidad",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_262"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_350"]),
@@ -685,7 +685,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de obesidad__fila_161"]),
         },
         {
-            "Tipo de detección": "Riesgo metabólico",
+            "Tipo": "Cuestionario de riesgo",
             "Detección": "DM",
             "NNA": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_266"]),
             "Adultos": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_354"]),
@@ -694,7 +694,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección riesgo de Diabetes Mellitus__fila_165"]),
         },
         {
-            "Tipo de detección": "Riesgo metabólico",
+            "Tipo": "Cuestionario de riesgo",
             "Detección": "HAS",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_264"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_352"]),
@@ -703,7 +703,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de hipertensión arterial sistémica__fila_163"]),
         },
         {
-            "Tipo de detección": "Riesgo metabólico",
+            "Tipo": "Cuestionario de riesgo",
             "Detección": "Dislipidemias",
             "NNA": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_268"]),
             "Adultos": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_356"]),
@@ -712,7 +712,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Detección de riesgo de dislipidemias__fila_167"]),
         },
         {
-            "Tipo de detección": "Consumo de sustancias",
+            "Tipo": "Cuestionario de riesgo",
             "Detección": "Alcohol, Tabaco y Otras sustancias",
             "NNA": sum_columns(df, ["Positivo Consumo de alcohol__fila_245", "Positivo Consumo de tabaco__fila_247", "Positivo Consumo de otras sustancias__fila_249"]),
             "Adultos": sum_columns(df, ["Positivo Consumo de alcohol__fila_333", "Positivo Consumo de tabaco__fila_335", "Positivo Consumo de otras sustancias__fila_337"]),
@@ -721,7 +721,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Positivo Consumo de alcohol__fila_144", "Positivo Consumo de tabaco__fila_146", "Positivo Consumo de otras sustancias__fila_148"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Violencia Psicológica",
             "NNA": sum_columns(df, ["Psicológica__fila_255"]),
             "Adultos": sum_columns(df, ["Psicológica__fila_342"]),
@@ -730,7 +730,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Psicológica__fila_154"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Violencia Física",
             "NNA": sum_columns(df, ["Física__fila_254"]),
             "Adultos": sum_columns(df, ["Física__fila_342"]),
@@ -739,7 +739,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Física__fila_153"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Bullying",
             "NNA": sum_columns(df, ["Bullying__fila_259"]),
             "Adultos": sum_columns(df, ["Bullying__fila_347"]),
@@ -748,7 +748,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Bullying__fila_158"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Violencia Sexual",
             "NNA": sum_columns(df, ["Sexual__fila_256"]),
             "Adultos": sum_columns(df, ["Sexual__fila_344"]),
@@ -757,7 +757,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Sexual__fila_155"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Violencia Económica",
             "NNA": sum_columns(df, ["Económica__fila_258"]),
             "Adultos": sum_columns(df, ["Económica__fila_346"]),
@@ -766,7 +766,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Económica__fila_157"]),
         },
         {
-            "Tipo de detección": "Violencia",
+            "Tipo": "Sospechas de violencia",
             "Detección": "Abandono",
             "NNA": sum_columns(df, ["Abandono__fila_257"]),
             "Adultos": sum_columns(df, ["Abandono__fila_345"]),
@@ -775,7 +775,7 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Abandono__fila_156"]),
         },
         {
-            "Tipo de detección": "Referencia por violencia",
+            "Tipo": "Referencias por violencia",
             "Detección": "Referencias",
             "NNA": sum_columns(df, ["Referidos a 1er nivel por violencia__fila_260"]),
             "Adultos": sum_columns(df, ["Referidos a 1er nivel por violencia__fila_348"]),
@@ -787,11 +787,12 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
     calculated = pd.DataFrame(rows)
     template = load_detections_template()
     if template is None:
-        return calculated.rename(columns={"Tipo de detección": "Tipo"})
+        return calculated
 
     value_columns = ["NNA", "Adultos", "Adultos mayores", "Embarazadas", "Puérperas"]
     lookup = calculated.set_index("Detección")
     output = template.copy()
+    output["Tipo"] = output["Detección"].map(lookup["Tipo"]).fillna(output["Tipo"])
     for column in value_columns:
         if column not in output.columns:
             output[column] = 0
