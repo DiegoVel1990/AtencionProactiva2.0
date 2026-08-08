@@ -10,6 +10,10 @@ import streamlit as st
 
 
 DEFAULT_DATA_PATH = "base_semanal_unidad_2026.parquet"
+LOCAL_DETECTIONS_TEMPLATE_PATH = Path(
+    "C:/Users/diego.velazquez.OPDIB/OneDrive - IMSS-BIENESTAR/Documentos/Escritorio/2026-08-07T20-48_export.csv"
+)
+REPO_DETECTIONS_TEMPLATE_PATH = Path(__file__).with_name("detecciones_template.csv")
 LOCAL_LOGO_PATH = (
     Path("C:/Users/diego.velazquez.OPDIB/OneDrive - IMSS-BIENESTAR/Documentos/IMSS-B/05 Logos y formatos/2025/")
     / "Logotipos-20250115T173410Z-001/Logotipos/"
@@ -261,6 +265,16 @@ def show_tab_title(title: str) -> None:
 
 def show_tab_context(text: str) -> None:
     st.markdown(f'<div class="tab-context">{text}</div>', unsafe_allow_html=True)
+
+
+def load_detections_template() -> pd.DataFrame | None:
+    for path in (REPO_DETECTIONS_TEMPLATE_PATH, LOCAL_DETECTIONS_TEMPLATE_PATH):
+        if path.exists():
+            template = pd.read_csv(path, encoding="utf-8-sig")
+            template.columns = [str(column).strip() for column in template.columns]
+            if "Tipo" in template.columns and "Detección" in template.columns:
+                return template
+    return None
 
 
 def resolve_data_path(path_text: str) -> str:
@@ -770,7 +784,19 @@ def detections_summary(df: pd.DataFrame) -> pd.DataFrame:
             "Puérperas": sum_columns(df, ["Referidos a 1er nivel por violencia__fila_159"]),
         },
     ]
-    return pd.DataFrame(rows)
+    calculated = pd.DataFrame(rows)
+    template = load_detections_template()
+    if template is None:
+        return calculated.rename(columns={"Tipo de detección": "Tipo"})
+
+    value_columns = ["NNA", "Adultos", "Adultos mayores", "Embarazadas", "Puérperas"]
+    lookup = calculated.set_index("Detección")
+    output = template.copy()
+    for column in value_columns:
+        if column not in output.columns:
+            output[column] = 0
+        output[column] = output["Detección"].map(lookup[column]).fillna(0)
+    return output[["Tipo", "Detección", *value_columns]]
 
 
 def visit_conclusion_summary(df: pd.DataFrame) -> pd.DataFrame:
