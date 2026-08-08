@@ -985,11 +985,25 @@ def prevention_promotion_summary(df: pd.DataFrame) -> dict:
         "PFAM Entrega de vida suero oral",
         "PFAM Entrega de material",
     ]
+    zarit_detection_columns = [
+        "Detección Test sobre la carga del cuidador (Zarit y Zarit)__fila_273",
+        "Detección Test sobre la carga del cuidador (Zarit y Zarit)__fila_361",
+        "Detección Test sobre la carga del cuidador (Zarit y Zarit)__fila_465",
+        "Detección Test sobre la carga del cuidador (Zarit y Zarit)__fila_72",
+        "Detección Test sobre la carga del cuidador (Zarit y Zarit)__fila_172",
+    ]
+    zarit_positive_columns = [
+        "Positivo Test sobre la carga del cuidador (Zarit y Zarit)__fila_274",
+        "Positivo Test sobre la carga del cuidador (Zarit y Zarit)__fila_362",
+        "Positivo Test sobre la carga del cuidador (Zarit y Zarit)__fila_466",
+        "Positivo Test sobre la carga del cuidador (Zarit y Zarit)__fila_73",
+        "Positivo Test sobre la carga del cuidador (Zarit y Zarit)__fila_173",
+    ]
 
     detections = sum_columns(df, detection_columns)
     positives = sum_columns(df, positive_columns)
-    zarit = sum_columns(df, ["Test sobre la carga de la persona cuidadora (Zarit y Zarit)"])
-    zarit_positive = sum_columns(df, ["Test sobre la carga de la persona cuidadora (Zarit y Zarit) positivos"])
+    zarit = sum_columns(df, zarit_detection_columns)
+    zarit_positive = sum_columns(df, zarit_positive_columns)
 
     return {
         "houses": sum_columns(df, ["Intervenciones en la vivienda SI", "Intervenciones en la vivienda NO"]),
