@@ -540,7 +540,7 @@ def indicator_summary(df: pd.DataFrame) -> pd.DataFrame:
         axis=1,
     )
     indicators["Resultado"] = indicators.apply(
-        lambda row: f'{row["Valor"]:.2f}:1' if row["Tipo"] == "Razón" else f'{row["Valor"]:.1%}',
+        lambda row: f'{row["Valor"]:.1f}:1' if row["Tipo"] == "Razón" else f'{row["Valor"]:.1%}',
         axis=1,
     )
     indicators["Numerador"] = indicators["Numerador"].round(0).astype(int)
@@ -844,44 +844,44 @@ def visit_conclusion_summary(df: pd.DataFrame) -> pd.DataFrame:
 def visit_conclusion_by_age_group(df: pd.DataFrame, conclusion: str) -> pd.DataFrame:
     conclusion_columns = {
         "Referencia a USPN": {
-            "Niñas, niños y adolescentes <18": ("Referencia 1er nivel__fila_291",),
-            "Adultos 18 - 59": ("Referencia 1er nivel__fila_379",),
-            "Adultos mayores >=60": ("Referencia 1er nivel__fila_483",),
+            "Niñas, niños y adolescentes": ("Referencia 1er nivel__fila_291",),
+            "Adultos": ("Referencia 1er nivel__fila_379",),
+            "Adultos mayores": ("Referencia 1er nivel__fila_483",),
             "Embarazadas": ("Referencia 1er nivel__fila_90",),
             "Puérperas": ("Referencia 1er nivel__fila_190",),
         },
         "Referencia a 2ndo nivel": {
-            "Niñas, niños y adolescentes <18": ("Referencia 2ndo nivel__fila_292",),
-            "Adultos 18 - 59": ("Referencia 2ndo nivel__fila_380",),
-            "Adultos mayores >=60": ("Referencia 2ndo nivel__fila_484",),
+            "Niñas, niños y adolescentes": ("Referencia 2ndo nivel__fila_292",),
+            "Adultos": ("Referencia 2ndo nivel__fila_380",),
+            "Adultos mayores": ("Referencia 2ndo nivel__fila_484",),
             "Embarazadas": ("Referencia 2ndo nivel__fila_91",),
             "Puérperas": ("Referencia 2ndo nivel__fila_191",),
         },
         "Cita en USPN": {
-            "Niñas, niños y adolescentes <18": ("Desenlace se asignó fecha proxima visita uspn__fila_293",),
-            "Adultos 18 - 59": ("Desenlace se asignó fecha proxima visita uspn__fila_381",),
-            "Adultos mayores >=60": ("Desenlace se asignó fecha proxima visita uspn__fila_485",),
+            "Niñas, niños y adolescentes": ("Desenlace se asignó fecha proxima visita uspn__fila_293",),
+            "Adultos": ("Desenlace se asignó fecha proxima visita uspn__fila_381",),
+            "Adultos mayores": ("Desenlace se asignó fecha proxima visita uspn__fila_485",),
             "Embarazadas": ("Desenlace se asignó fecha proxima visita uspn__fila_92",),
             "Puérperas": ("Desenlace se asignó fecha proxima visita uspn__fila_192",),
         },
         "Próxima visita en domicilio": {
-            "Niñas, niños y adolescentes <18": ("Desenlace se asignó fecha proxima visita domicilio__fila_294",),
-            "Adultos 18 - 59": ("Desenlace se asignó fecha proxima visita domicilio__fila_382",),
-            "Adultos mayores >=60": ("Desenlace se asignó fecha proxima visita domicilio__fila_486",),
+            "Niñas, niños y adolescentes": ("Desenlace se asignó fecha proxima visita domicilio__fila_294",),
+            "Adultos": ("Desenlace se asignó fecha proxima visita domicilio__fila_382",),
+            "Adultos mayores": ("Desenlace se asignó fecha proxima visita domicilio__fila_486",),
             "Embarazadas": ("Desenlace se asignó fecha proxima visita domicilio__fila_93",),
             "Puérperas": ("Desenlace se asignó fecha proxima visita domicilio__fila_193",),
         },
         "Expidió nueva receta": {
-            "Niñas, niños y adolescentes <18": ("Desenlace Expidió nueva receta__fila_295",),
-            "Adultos 18 - 59": ("Desenlace Expidió nueva receta__fila_383",),
-            "Adultos mayores >=60": ("Desenlace Expidió nueva receta__fila_487",),
+            "Niñas, niños y adolescentes": ("Desenlace Expidió nueva receta__fila_295",),
+            "Adultos": ("Desenlace Expidió nueva receta__fila_383",),
+            "Adultos mayores": ("Desenlace Expidió nueva receta__fila_487",),
             "Embarazadas": ("Desenlace Expidió nueva receta__fila_94",),
             "Puérperas": ("Desenlace Expidió nueva receta__fila_194",),
         },
         "Surtió nueva receta": {
-            "Niñas, niños y adolescentes <18": ("Desenlace surtió nueva receta__fila_296",),
-            "Adultos 18 - 59": ("Desenlace surtió nueva receta__fila_384",),
-            "Adultos mayores >=60": ("Desenlace surtió nueva receta__fila_488",),
+            "Niñas, niños y adolescentes": ("Desenlace surtió nueva receta__fila_296",),
+            "Adultos": ("Desenlace surtió nueva receta__fila_384",),
+            "Adultos mayores": ("Desenlace surtió nueva receta__fila_488",),
             "Embarazadas": ("Desenlace surtió nueva receta__fila_95",),
             "Puérperas": ("Desenlace surtió nueva receta__fila_195",),
         },
@@ -953,7 +953,7 @@ def format_integer(value: float) -> str:
 
 
 def format_percent(value: float) -> str:
-    return f"{value:.0%}"
+    return f"{value:.1%}"
 
 
 def prevention_promotion_summary(df: pd.DataFrame) -> dict:
@@ -1088,7 +1088,16 @@ def _legacy_render_prevention_promotion(summary: dict, talks: pd.DataFrame) -> N
 
 def show_table(title: str, df: pd.DataFrame) -> None:
     show_element_title(f"Tabla. {title}")
-    st.dataframe(df, hide_index=True, use_container_width=True)
+    display_df = df.copy()
+    for column in display_df.columns:
+        numeric = pd.to_numeric(display_df[column], errors="coerce")
+        if numeric.notna().any():
+            finite_values = numeric.dropna()
+            if ((finite_values % 1).abs() < 1e-9).all():
+                display_df[column] = display_df[column].where(numeric.isna(), numeric.round(0).astype("Int64"))
+            else:
+                display_df[column] = display_df[column].where(numeric.isna(), numeric.round(1))
+    st.dataframe(display_df, hide_index=True, use_container_width=True)
 
 
 def value_color_map(df: pd.DataFrame, names: str, values: str, colors: list[str]) -> dict[str, str]:
@@ -1104,6 +1113,7 @@ def show_pie_chart(
     color_map: dict[str, str] | None = None,
     color_sequence: list[str] | None = None,
     hover_percent_only: bool = False,
+    label_percent_only: bool = False,
 ) -> None:
     show_element_title(f"Gráfica. {title}")
     color_arg = names if color_map else None
@@ -1120,10 +1130,12 @@ def show_pie_chart(
     fig.update_traces(
         textposition="outside",
         textinfo="percent+label",
+        texttemplate="%{percent:.1%}" if label_percent_only else "%{label}<br>%{percent:.1%}",
         hovertemplate="<b>%{label}</b><br>%{percent:.1%}<extra></extra>",
+        automargin=True,
     )
     fig.update_layout(
-        margin=dict(t=8, b=20, l=20, r=20),
+        margin=dict(t=8, b=36, l=36, r=36),
         legend_title_text="",
         font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -1232,7 +1244,7 @@ def show_stacked_indicator_chart(indicators: pd.DataFrame) -> None:
         barmode="stack",
         xaxis_title="Avance",
         yaxis_title="",
-        xaxis=dict(tickformat=".0%", range=[0, 1]),
+        xaxis=dict(tickformat=".1%", range=[0, 1]),
         legend_title_text="",
         margin=dict(t=8, b=40, l=260, r=40),
         font=dict(family="Arial, sans-serif", size=14, color=INSTITUTIONAL_PALETTE["ink"]),
@@ -1432,19 +1444,18 @@ def main() -> None:
             "Conclusión de la visita",
             color_map=VISIT_CONCLUSION_COLOR_MAP,
         )
-        visit_cols = st.columns(3)
-        for chart_col, conclusion in zip(
-            visit_cols,
-            ("Referencia a USPN", "Referencia a 2ndo nivel", "Cita en USPN"),
-        ):
-            with chart_col:
-                show_pie_chart(
-                    visit_conclusion_by_age_group(filtered, conclusion),
-                    "Grupo de edad",
-                    "Total",
-                    f"{conclusion} por grupo de edad",
-                    color_map=AGE_GROUP_COLORS,
-                )
+        for row_start in range(0, len(VISIT_CONCLUSION_PIE_ORDER), 3):
+            visit_cols = st.columns(3)
+            for chart_col, conclusion in zip(visit_cols, VISIT_CONCLUSION_PIE_ORDER[row_start : row_start + 3]):
+                with chart_col:
+                    show_pie_chart(
+                        visit_conclusion_by_age_group(filtered, conclusion),
+                        "Grupo de edad",
+                        "Total",
+                        f"{conclusion} por grupo de edad",
+                        color_map=AGE_GROUP_COLORS,
+                        label_percent_only=True,
+                    )
     with tab4:
         show_tab_title("Acciones de prevención y promoción a la salud")
         show_tab_context(
